@@ -62,6 +62,9 @@ export type PublicEnv = {
     service?: IntegrationService;
     settings?: IntegrationSettings<IntegrationType.Analytics>;
   };
+  NFT_CONTRACT_ADDRESS: string | undefined;
+  ALCHEMY_ID: string;
+  WALLETCONNECT_PROJECT_ID: string;
 };
 
 export enum AttachmentPreset {

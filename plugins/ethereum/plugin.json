@@ -1,0 +1,5 @@
+{
+  "name": "Sign in with ethereum",
+  "description": "Adds an Ethereum authentication provider.",
+  "requiredEnvVars": []
+}

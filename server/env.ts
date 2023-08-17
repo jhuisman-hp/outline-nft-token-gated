@@ -578,6 +578,15 @@ export class Environment {
     this.AWS_S3_UPLOAD_MAX_SIZE
   );
 
+  @IsOptional()
+  public NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS;
+
+  @IsNotEmpty()
+  public ALCHEMY_ID = process.env.ALCHEMY_ID || "";
+
+  @IsNotEmpty()
+  public WALLETCONNECT_PROJECT_ID = process.env.WALLETCONNECT_PROJECT_ID || "";
+
   /**
    * The product name
    */

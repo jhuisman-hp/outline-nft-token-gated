@@ -20,6 +20,7 @@ import env from "~/env";
 import { initI18n } from "~/utils/i18n";
 import Desktop from "./components/DesktopEventHandler";
 import LazyPolyfill from "./components/LazyPolyfills";
+import Web3Provider from "./components/Web3Provider";
 import Routes from "./routes";
 import Logger from "./utils/Logger";
 import history from "./utils/history";
@@ -53,29 +54,31 @@ if (element) {
     <React.StrictMode>
       <HelmetProvider>
         <Provider {...stores}>
-          <Analytics>
-            <Theme>
-              <ErrorBoundary showTitle>
-                <KBarProvider actions={[]} options={commandBarOptions}>
-                  <LazyPolyfill>
-                    <LazyMotion features={loadFeatures}>
-                      <Router history={history}>
-                        <>
-                          <PageTheme />
-                          <ScrollToTop>
-                            <Routes />
-                          </ScrollToTop>
-                          <Toasts />
-                          <Dialogs />
-                          <Desktop />
-                        </>
-                      </Router>
-                    </LazyMotion>
-                  </LazyPolyfill>
-                </KBarProvider>
-              </ErrorBoundary>
-            </Theme>
-          </Analytics>
+          <Web3Provider>
+            <Analytics>
+              <Theme>
+                <ErrorBoundary showTitle>
+                  <KBarProvider actions={[]} options={commandBarOptions}>
+                    <LazyPolyfill>
+                      <LazyMotion features={loadFeatures}>
+                        <Router history={history}>
+                          <>
+                            <PageTheme />
+                            <ScrollToTop>
+                              <Routes />
+                            </ScrollToTop>
+                            <Toasts />
+                            <Dialogs />
+                            <Desktop />
+                          </>
+                        </Router>
+                      </LazyMotion>
+                    </LazyPolyfill>
+                  </KBarProvider>
+                </ErrorBoundary>
+              </Theme>
+            </Analytics>
+          </Web3Provider>
         </Provider>
       </HelmetProvider>
     </React.StrictMode>

@@ -2,7 +2,7 @@ import path from "path";
 // eslint-disable-next-line import/no-unresolved
 import { optimizeLodashImports } from "@optimize-lodash/rollup-plugin";
 import react from "@vitejs/plugin-react";
-import browserslistToEsbuild from "browserslist-to-esbuild";
+// import browserslistToEsbuild from "browserslist-to-esbuild";
 import dotenv from "dotenv";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
@@ -14,8 +14,8 @@ dotenv.config({
   silent: true,
 });
 
-export default () => {
-  return defineConfig({
+export default () =>
+  defineConfig({
     root: "./",
     publicDir: "./server/static",
     base: (process.env.CDN_URL ?? "") + "/static/",
@@ -92,9 +92,13 @@ export default () => {
     ],
     optimizeDeps: {
       esbuildOptions: {
+        target: "esnext",
         keepNames: true,
         define: {
           global: "globalThis",
+        },
+        supported: {
+          bigint: true,
         },
       },
     },
@@ -111,7 +115,7 @@ export default () => {
       minify: "terser",
       // Prevent asset inling as it does not conform to CSP rules
       assetsInlineLimit: 0,
-      target: browserslistToEsbuild(),
+      target: "esnext",
       reportCompressedSize: false,
       terserOptions: {
         keep_classnames: true,
@@ -124,4 +128,3 @@ export default () => {
       },
     },
   });
-};

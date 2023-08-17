@@ -35,5 +35,8 @@ export default function present(
       service: analytics?.service,
       settings: analytics?.settings,
     },
+    NFT_CONTRACT_ADDRESS: env.NFT_CONTRACT_ADDRESS,
+    ALCHEMY_ID: env.ALCHEMY_ID,
+    WALLETCONNECT_PROJECT_ID: env.WALLETCONNECT_PROJECT_ID,
   };
 }

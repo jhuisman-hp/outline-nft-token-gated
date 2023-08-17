@@ -620,6 +620,7 @@
   "Inline LaTeX": "Inline LaTeX",
   "Sign In": "Sign In",
   "Continue with Email": "Continue with Email",
+  "Sign in with ethereum as {{address}}": "Sign in with ethereum as {{address}}",
   "Continue with {{ authProviderName }}": "Continue with {{ authProviderName }}",
   "Back to home": "Back to home",
   "Login": "Login",

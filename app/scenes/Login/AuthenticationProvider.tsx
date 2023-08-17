@@ -1,7 +1,9 @@
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { EmailIcon } from "outline-icons";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { useAccount, useSignMessage } from "wagmi";
 import { Client } from "@shared/types";
 import { parseDomain } from "@shared/utils/domains";
 import ButtonLarge from "~/components/ButtonLarge";
@@ -38,12 +40,88 @@ function useRedirectHref(authUrl: string) {
   return url.toString();
 }
 
+async function getEthereumJWT(walletAddress: string, chainId: number) {
+  const url = new URL(`${env.URL}/auth/ethereum.jwt`);
+
+  url.searchParams.set("walletAddress", walletAddress);
+  url.searchParams.set("chainId", chainId.toString());
+  url.searchParams.set("domain", window.location.host);
+  url.searchParams.set("uri", window.location.origin);
+
+  const options = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  const response = await fetch(url.toString(), options);
+  const data = await response.json();
+  const jwt = data.jwt;
+
+  return jwt;
+}
+
+type GetAccountResult = ReturnType<typeof useAccount>;
+type AsyncSigner = ReturnType<typeof useSignMessage>["signMessageAsync"];
+
+async function signInWithEthereum(
+  account: GetAccountResult,
+  signAsync: AsyncSigner
+) {
+  if (!account.address || !account.isConnected) {
+    throw new Error("No account connected");
+  }
+
+  const chainId = await account.connector?.getChainId();
+
+  if (!chainId) {
+    throw new Error("No chainId");
+  }
+
+  const jwt = await getEthereumJWT(account.address, chainId);
+  const decodedJwt = JSON.parse(window.atob(jwt.split(".")[1]));
+  const message = decodedJwt.message;
+
+  const signature = await signAsync({ message });
+
+  if (!signature) {
+    throw new Error("No signature");
+  }
+
+  await authenticateEthereumUser(jwt, signature).then((response) => {
+    // Navigate to /home after successful authentication.
+    if (response.redirected) {
+      window.location.href = response.url;
+    }
+  });
+}
+
+async function authenticateEthereumUser(jwt: string, signature: string) {
+  const url = `${env.URL}/auth/ethereum`;
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ jwt, signature }),
+  };
+
+  const response = await fetch(url, options);
+  return response;
+}
+
 function AuthenticationProvider(props: Props) {
   const { t } = useTranslation();
   const [showEmailSignin, setShowEmailSignin] = React.useState(false);
   const [isSubmitting, setSubmitting] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const { isCreate, id, name, authUrl } = props;
+
+  const { signMessageAsync } = useSignMessage();
+
+  const account = useAccount();
 
   const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -111,6 +189,33 @@ function AuthenticationProvider(props: Props) {
         </Form>
       </Wrapper>
     );
+  }
+
+  if (id === "ethereum") {
+    if (isCreate) {
+      return null;
+    }
+
+    if (!account.address || !account.isConnected) {
+      return <ConnectButton showBalance={false} />;
+    } else {
+      return (
+        <>
+          <ButtonLarge
+            fullwidth
+            onClick={() => signInWithEthereum(account, signMessageAsync)}
+          >
+            {t("Sign in with ethereum as {{address}}", {
+              address:
+                account.address?.toString().slice(0, 6) +
+                "..." +
+                account.address?.toString().slice(-4),
+            })}
+          </ButtonLarge>
+          <ConnectButton showBalance={false} />
+        </>
+      );
+    }
   }
 
   return (
